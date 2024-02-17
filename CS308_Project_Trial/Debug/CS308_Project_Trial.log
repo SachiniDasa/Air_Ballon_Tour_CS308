@@ -1,2 +1,5 @@
 ﻿  code.cpp
+soil2-debug.lib(image_DXT.obj) : warning LNK4099: PDB '' was not found with 'soil2-debug.lib(image_DXT.obj)' or at ''; linking object as if no debug info
+soil2-debug.lib(image_helper.obj) : warning LNK4099: PDB '' was not found with 'soil2-debug.lib(image_helper.obj)' or at ''; linking object as if no debug info
+soil2-debug.lib(SOIL2.obj) : warning LNK4099: PDB '' was not found with 'soil2-debug.lib(SOIL2.obj)' or at ''; linking object as if no debug info
   CS308_Project_Trial.vcxproj -> C:\Users\admin\Desktop\CS308 Project\Air_Ballon_Tour_CS308\CS308_Project_Trial\Debug\CS308_Project_Trial.exe

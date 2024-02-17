@@ -16,6 +16,7 @@ GLfloat objTX = 0.0; GLfloat objTY = 0.0; GLfloat objTZ = 0.0;
 //-----------------------------------------------------------------------------------------------------------------------------
 constexpr float pi = 3.14159265358979323846;
 int animationFactor = 0;
+const int numPoints = 9;
 //For the texture image
 
 int width;
@@ -36,6 +37,7 @@ GLuint tex, tex1, tex2, tex3, tex4, tex5, tex6, tex7, tex8,tex9;
 
 GLuint textureID1;
 GLuint textureID2;
+GLuint textureID3;
 
 float vertices[][3] = { {1.0,1.0,-1.0},{-1.0,1.0,-1.0},{-1.0,1.0, 1.0},
     {1.0,1.0,1.0},{1.0,-1.0,-1.0},{1.0,-1.0,1.0},
@@ -108,6 +110,19 @@ void loadTexture2() {
     );
 
     if (!textureID2) {
+        printf("Texture loading failed: %s\n", SOIL_last_result());
+    }
+}
+//use to add Texture for water
+void loadTexture3() {
+    textureID3 = SOIL_load_OGL_texture(
+        "river.bmp",  // Replace with the path to your texture file
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
+    );
+
+    if (!textureID3) {
         printf("Texture loading failed: %s\n", SOIL_last_result());
     }
 }
@@ -254,7 +269,10 @@ void loadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
 }
+
 //grid with filled texture
 void drawGrid1(int ext1, int ext2) {
     //GLfloat ext=ext;
@@ -406,7 +424,6 @@ void cube() {
     surfac4(1, 2, 6, 7);
     surfac4(0, 3, 5, 4);
 }
-//-----------------------------------------------------------------------------------------------checked--
 //Drawing air ballon
 void ballonpart1(double radius1, double radius2, double height) {
     float x1, y = 0.0, z1, x2, z2;
@@ -463,13 +480,13 @@ void drawBallon() {
     glPopMatrix();
     // Draw other parts of the balloon
     glPushMatrix();
+    glTranslatef(0, 0, -animationFactor / 10);
     glTranslatef(0.0, 13, 0.0);
     glScalef(0.48, 0.48, 0.48);
     ballonpart1(3, 5, 4);
     glPopMatrix();
 }
 
-//-----------------------------------------------------testing
 
 void getAirBallonLines() {
     glPushMatrix();
@@ -489,18 +506,21 @@ void getAirBallonLines() {
 void drawAirBallon() {
     glPushMatrix();
     glPushMatrix();
+    glTranslatef(0, 0, -animationFactor / 10);
     glTranslatef(0, 14, 0);
     glScalef(0.5, 0.5, 0.5);
     drawBallon();
     glPopMatrix();
 
     glPushMatrix();
+    glTranslatef(0, 0, -animationFactor / 10);
     glTranslatef(0, 10, 0);
     glScalef(1.5, 1.5, 1.5);
     cube3D();
     glPopMatrix();
 
     glPushMatrix();
+    glTranslatef(0, 0, -animationFactor / 10);
     glTranslatef(1.25, 13, -1.25);
     glRotatef(90, 0, 1, 0);
     glScalef(0.1, 9, 0.1);
@@ -514,7 +534,7 @@ void drawAirBallon() {
     glPopMatrix();
     glPopMatrix();
 }
-//------------------------------------------------------------testing-----------------------------------------
+//Draw tree
 void Circle(float radius1) {
     //glColor3f(0.0, 0.0, 0.0);
     glBegin(GL_POLYGON);
@@ -575,13 +595,15 @@ void drawleaves() {
 
 //draw one tree
 void trees() {
-   // glPushMatrix();
+    //glPushMatrix();
     glPushMatrix();
-    glTranslatef(-10, 3, 2);
+    glTranslatef(-10, 3, 0);
     glRotatef(90, -1, 0, 0);
     drawleaves();
-    glTranslatef(-2, 0, -2);
-    glRotatef(90, 0, 0, 1);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(-10, 3,0);
+    glRotatef(90, 1, 0, 0);
     drawTrunk();
     glPopMatrix();
     //glPopMatrix();
@@ -733,58 +755,74 @@ void moreGrass() {
     glPopMatrix();
 }
 
-//--------------------------------------------------------------------------draw the bridge --------NOT WORKING--------------------------
-void drawBridge() {
-glPushMatrix();
+//--------------------------------------------------------------------------draw the bridge --------NOT WORKING-
 
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, tex7);
-
-glTranslatef(0.0f, 1.0f, 0.0f);
-
-// Draw cylinders to form a small curved bridge
-for (int i = 0; i < 8; ++i) {
-    glPushMatrix();
-    glRotatef(i * 45.0f, 0.0f, 1.0f, 0.0f);
-    glTranslatef(2.5f * cos(i * pi / 4.0f), 0.0f, 2.5f * sin(i * pi / 4.0f));
-    drawCylinder(0.2f, 1.0f);
-    glPopMatrix();
-}
-
-glDisable(GL_TEXTURE_2D);
-
-glPopMatrix();
-
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, tex7);
-
-for (int i = 0; i < 8; ++i) {
-    glPushMatrix();
-    glTranslatef(2.5f * cos(i * pi / 4.0f), 0.5f, 2.5f * sin(i * pi / 4.0f));
-
-   
-    drawCylinder(0.1f, 0.5f);
-
-    
-    glPushMatrix();
-    glTranslatef(0.0f, 0.25f, 0.0f);
-    glScalef(0.5f, 0.05f, 1.0f);
-    glutSolidCube(1.0);
-    glPopMatrix();
-
-    glPopMatrix();
-}
-
-  glDisable(GL_TEXTURE_2D);
-}
-
-
-
+//--------------------------end testing------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
-//---------------------------draw pond
-//draw car which is moving--------------------
+//---------------------------draw pond--------------------
+void drawDisk(double radius,int n ) {
+    double angle = 0;
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID3);
+    glBegin(GL_POLYGON);
+    for (int c = 0;c <= n;c++) {
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glTexCoord2d((x + 1) / 2, (y + 1) / 2);
+        glVertex3d(x, y, 0);
+        angle = angle + ((2 * pi) / n);
+    }
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+
+}
+
+void drawStone(float x, float y) {
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glColor3f(0.5f, 0.5f, 0.5f); 
+    glutSolidSphere(0.5, 20, 20); 
+    glPopMatrix();
+}
+
+void drawPond(float centerX, float centerY, float radius, int numStones) {
+    for (int i = 0; i < numStones; ++i) {
+        float angle = 2.0f * pi * i / numStones;
+        float x = centerX + radius * cos(angle);
+        float y = centerY + radius * sin(angle);
+        drawStone(x, y);
+    }
+}
+
+
 //add river---------------------------------------
+void drawHelixspring(float radius, float a, float b) {
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
+
+    float angle = 0.0;
+    float stepSize = 0.1;
+    glBegin(GL_QUAD_STRIP);
+    while (y <= 8) {
+        x = radius * cos(angle);
+        y = radius * sin(angle);
+        glVertex3f(x, y, z);
+        glVertex3f(x, y +a, z);
+        angle += stepSize;
+        z += b;
+
+    }
+    glEnd();
+}
+void drawRiver() {
+
+}
+
+
 //draw lamps--------------------------------------------------------------------------------------------
+
+
 
 void init(void) {
     glClearColor(0.19, 0.6, 0.8, 1.0);
@@ -837,12 +875,17 @@ void setLighting() {
     glMateriali(GL_FRONT, GL_SHININESS, Shine);
 }
 
+void animate(int value) {
+    glutPostRedisplay();
+    glutTimerFunc(15, animate, 1);
+}
+
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPushMatrix();
     // camera orientation (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
-    gluLookAt(0.0, 2.0 + camY, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(0.0, 5.0 + camY, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
     // move the scene (all the rendered environment) using keyboard keys
     glTranslatef(sceTX, sceTY, sceTZ);
@@ -866,34 +909,59 @@ void display(void) {
     glTranslated(0, 0, -40);
     moreGrass();
     glPopMatrix();
-    // ---------------------------------------  testing brigde--
-    drawBridge();
-    
-    // ------------------------------------------ Draw Tree
+    //--------------------------------Draw river  ----------------------  testing
+    glPushMatrix();
+    glTranslatef(0, 0.2, 0);
+    drawRiver();
+    glPopMatrix();
+    // ---------------------------------------  testing Two store house--
+    //twostorehouse();
+    // ------------------------------------------ Draw Tree   --Working with ballon 
     //glPushMatrix();
-    //trees();
-    //glPopMatrix();
-    //glTranslatef(2, 0, 0);
-    //trees();
-   // glTranslatef(2, 0, 0);
-    //trees();
-    //glTranslatef(0, 0, 2);
-    //trees();
+    glPushMatrix();
+    trees();
+    glPopMatrix();
+    glTranslatef(2, 0, 0);
+    trees();
+    glTranslatef(2, 0, 0);
+    trees();
+    glTranslatef(0, 0, 2);
+    trees();
 
-    //moretrees();
-    
-    //---------------------------------------Draw Buildings  -- gound house
+    //moreTrees();
+    //------------------------------------------------Draw Pond------ working with ballon
+    glPushMatrix();
+    glTranslated(-12, 0, -10);
+    glRotatef(90, 1.0, 0.0, 0.0);
+    drawPond(-10, -10, 8, 64);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated(-22,0.1,-20);
+    glRotatef(90, 1.0, 0.0, 0.0);
+    drawDisk(8, 32);
+    glPopMatrix();
+    //-----------------------------------------Draw river ------------testing now
+    //drawHelixspring(4, 0.4, 0.05);
+    //---------------------------------------Draw Buildings  -- gound house  --working  with ballon
     //glPushMatrix();
     //glTranslatef(8, 0, 0);
-    //groundHouse();
+    groundHouse();
+    glTranslatef(10, 0, 0);
+    groundHouse();
+    glTranslatef(0,0,15);
+    groundHouse();
+
     //glPopMatrix();
 
-    //--------------------------------------                -- twostorehouse
+    //-------------------------------------- -- twostorehouse  ---not working  with ballon
+    //glTranslatef(0, 4, 0);
     //twostorehouse();
     //-----------------------------------------  --- Draw the ballon---------
     glPushMatrix();
+   // glTranslatef(animationFactor / 100, 0, 0);
     drawAirBallon();
     glPopMatrix();
+    animationFactor++;
     //-----------------------------------------------------------------------
     glPopMatrix();
     glutSwapBuffers();
@@ -976,9 +1044,12 @@ int main(void) {
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(keyboardSpecial);
     loadTexture1();
+    loadTexture3();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
+    glutTimerFunc(15,animate,1);
     init();
+
     glutMainLoop();
     return 0;
 }
