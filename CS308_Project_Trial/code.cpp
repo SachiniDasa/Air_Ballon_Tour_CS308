@@ -16,7 +16,7 @@ GLfloat objTX = 0.0; GLfloat objTY = 0.0; GLfloat objTZ = 0.0;
 //-----------------------------------------------------------------------------------------------------------------------------
 constexpr float pi = 3.14159265358979323846;
 int animationFactor = 0;
-const int numPoints = 9;
+const int numPoints = 100;
 //For the texture image
 
 int width;
@@ -38,6 +38,8 @@ GLuint tex, tex1, tex2, tex3, tex4, tex5, tex6, tex7, tex8,tex9;
 GLuint textureID1;
 GLuint textureID2;
 GLuint textureID3;
+GLuint textureID4;
+GLuint textureID5;
 
 float vertices[][3] = { {1.0,1.0,-1.0},{-1.0,1.0,-1.0},{-1.0,1.0, 1.0},
     {1.0,1.0,1.0},{1.0,-1.0,-1.0},{1.0,-1.0,1.0},
@@ -123,6 +125,33 @@ void loadTexture3() {
     );
 
     if (!textureID3) {
+        printf("Texture loading failed: %s\n", SOIL_last_result());
+    }
+}
+
+//used to add texture for river
+void loadTexture4() {
+    textureID4 = SOIL_load_OGL_texture(
+        "pond.bmp",  // Replace with the path to your texture file
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
+    );
+
+    if (!textureID4) {
+        printf("Texture loading failed: %s\n", SOIL_last_result());
+    }
+}
+//uesd to add texture for the lamp posts
+void loadTexture5() {
+    textureID5 = SOIL_load_OGL_texture(
+        "lamp_pole.bmp",  // Replace with the path to your texture file
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
+    );
+
+    if (!textureID5) {
         printf("Texture loading failed: %s\n", SOIL_last_result());
     }
 }
@@ -480,7 +509,7 @@ void drawBallon() {
     glPopMatrix();
     // Draw other parts of the balloon
     glPushMatrix();
-    glTranslatef(0, 0, -animationFactor / 10);
+    glTranslatef(0, 0, -animationFactor / 20);
     glTranslatef(0.0, 13, 0.0);
     glScalef(0.48, 0.48, 0.48);
     ballonpart1(3, 5, 4);
@@ -506,21 +535,21 @@ void getAirBallonLines() {
 void drawAirBallon() {
     glPushMatrix();
     glPushMatrix();
-    glTranslatef(0, 0, -animationFactor / 10);
+    glTranslatef(0, 0, -animationFactor / 20);
     glTranslatef(0, 14, 0);
     glScalef(0.5, 0.5, 0.5);
     drawBallon();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0, 0, -animationFactor / 10);
+    glTranslatef(0, 0, -animationFactor / 20);
     glTranslatef(0, 10, 0);
     glScalef(1.5, 1.5, 1.5);
     cube3D();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0, 0, -animationFactor / 10);
+    glTranslatef(0, 0, -animationFactor / 20);
     glTranslatef(1.25, 13, -1.25);
     glRotatef(90, 0, 1, 0);
     glScalef(0.1, 9, 0.1);
@@ -700,19 +729,16 @@ void groundHouse() {
     roofScaled();
     housepills();
 }
+//-------------------------------------Not ok--------------
 
 void twostorehouse() {
-    buildingFloor();
     glPushMatrix();
     //glScalef(0, 1, 0);
+    buildingFloor();
     drawHouse();
-    glPopMatrix();
     housepills();
-
-    glPushMatrix();
     glTranslatef(0, 4, 0);
     groundHouse();
-
     glPopMatrix();
 
 }
@@ -759,7 +785,7 @@ void moreGrass() {
 
 //--------------------------end testing------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
-//---------------------------draw pond--------------------
+//---------------------------draw pond--------------------ok
 void drawDisk(double radius,int n ) {
     double angle = 0;
     glEnable(GL_TEXTURE_2D);
@@ -795,34 +821,101 @@ void drawPond(float centerX, float centerY, float radius, int numStones) {
 }
 
 
-//add river---------------------------------------
-void drawHelixspring(float radius, float a, float b) {
-    float x = 0.0;
-    float y = 0.0;
-    float z = 0.0;
-
-    float angle = 0.0;
-    float stepSize = 0.1;
-    glBegin(GL_QUAD_STRIP);
-    while (y <= 8) {
-        x = radius * cos(angle);
-        y = radius * sin(angle);
-        glVertex3f(x, y, z);
-        glVertex3f(x, y +a, z);
-        angle += stepSize;
-        z += b;
-
-    }
-    glEnd();
-}
+//add river---------------------------------------ok
 void drawRiver() {
+        // Define points along the path of the river
+    float riverPoints[numPoints][3];
 
-}
+        // Define the river points using a loop
+   for (int i = 0; i < numPoints; ++i) {
+            float t = (float)i / (numPoints - 1); // Parameter for interpolation (0 to 1)
+            float x = -10.0f + t * 20.0f; // Interpolate x-coordinate along the river
+            float y = 2.0f * sin(2.0f * pi * t); // Sine wave for y-coordinate
+            riverPoints[i][0] = x+1;
+            riverPoints[i][1] = y;
+            riverPoints[i][2] = 0.0f;
+    }
+
+        // Draw the river using triangle strips
+   glEnable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, textureID4);
+   glBegin(GL_TRIANGLE_STRIP);
+        for (int i = 0; i < numPoints - 1; ++i) {
+            glTexCoord2f((float)i / (numPoints - 1), 0.0f); 
+            glVertex3fv(riverPoints[i]);
+
+            glTexCoord2f((float)i / (numPoints - 1), 1.0f); 
+            glVertex3f(riverPoints[i][0], -1.0f, riverPoints[i][2]);
+
+            glTexCoord2f((float)(i + 1) / (numPoints - 1), 0.0f); 
+            glVertex3fv(riverPoints[i + 1]);
+
+            glTexCoord2f((float)(i + 1) / (numPoints - 1), 1.0f); 
+            glVertex3f(riverPoints[i + 1][0], -1.0f, riverPoints[i + 1][2]);
+        
+        }
+        glEnd();
+   glDisable(GL_TEXTURE_2D);
+ }
 
 
 //draw lamps--------------------------------------------------------------------------------------------
+void drawpost(int v1,int v2,int v3,int v4) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID5);
+    glBegin(GL_POLYGON);
+    glTexCoord2f(0, 1); glVertex3fv(vertices[v1]);
+    glTexCoord2f(1, 1); glVertex3fv(vertices[v2]);
+    glTexCoord2f(1, 0); glVertex3fv(vertices[v3]);
+    glTexCoord2f(0, 0); glVertex3fv(vertices[v4]);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+}
+
+void drawPole() {
+    GLUquadric* quad = gluNewQuadric();
+    gluQuadricTexture(quad, GL_TRUE);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID5);
+
+    gluCylinder(quad, 0.2f, 0.2f, 4.0f, 32, 32);
+
+    glDisable(GL_TEXTURE_2D);
+    gluDeleteQuadric(quad);
+}
+
+void drawLight() {
+
+    cube();
+}
+void drawLamp() {
+    glPushMatrix();
+    glTranslatef(0,-1,0);
+    drawpost(0, 1, 2, 3);
+    glTranslatef(2,2,12);
+    glRotatef(90, 1, 0, 0);
+    glScalef(4, 4, 4);
+    drawPole();
+    glPopMatrix();
+
+   // glPushMatrix();
+    //glTranslatef()
+    //glScalef(0.3, 0.3, 0.3);
+    //drawPole();
+    //glPopMatrix();
+
+    //glPushMatrix();
+    //glTranslatef();
+    //glScalef(0.3, 0.3, 0.3);
+    //roofScaled();
+    //glPopMatrix();
 
 
+}
+
+
+//-------------------------------------------------------------code templete
 
 void init(void) {
     glClearColor(0.19, 0.6, 0.8, 1.0);
@@ -892,6 +985,8 @@ void display(void) {
     glRotatef(sceRY, 0.0, 1.0, 0.0);
 
     setLighting();
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     //----------------------------------------Draw the floor
     glPushMatrix();
     drawGrid1(-80, 80);
@@ -908,54 +1003,158 @@ void display(void) {
     moreGrass();
     glTranslated(0, 0, -40);
     moreGrass();
+    glTranslated(10, 0, 0);
+    glRotatef(90,0,1,0);
+    moreGrass();
+    glTranslated(0,0, 40);
+    moreGrass();
+    glTranslated(0, 0, 40);
+    moreGrass();
+    glTranslated(-20, 0, 70);
+    glRotatef(90, 0, 1, 0);
+    moreGrass();
+    glTranslated(0, 0, -40);
+    moreGrass();
+    glTranslated(0, 0, -40);
+    moreGrass();
+    glTranslated(10, 0, 20);
+    glRotatef(90, 0, 1, 0);
+    moreGrass();
+    glTranslated(0, 0, 40);
+    moreGrass();
+    glTranslated(0, 0, 40);
+    moreGrass();
+    glTranslated(0, 0, 20);
+    moreGrass();
     glPopMatrix();
-    //--------------------------------Draw river  ----------------------  testing
+
+    //---------------------------draw Lamp------------------testing---------
+    //glPushMatrix();
+    //drawLamp();
+    //glPopMatrix();
+    //--------------------------------Draw river  ---------------------- working with ballon
     glPushMatrix();
-    glTranslatef(0, 0.2, 0);
+    glTranslatef(0, 0.3, 12);
+    glRotatef(90,1,0,0);
+    drawRiver();
+    glTranslatef(-10, 0,0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
+    drawRiver();
+    glTranslatef(-10, 0, 0);
     drawRiver();
     glPopMatrix();
-    // ---------------------------------------  testing Two store house--
-    //twostorehouse();
+    glPushMatrix();
+    glTranslatef(10, 0.3,12 );
+    glRotatef(90, 1, 0, 0);
+    drawRiver();
+    glTranslatef(10, 0,0);
+    drawRiver();
+    glTranslatef(10, 0, 0);
+    drawRiver();
+    glTranslatef(10, 0, 0);
+    drawRiver();
+    glTranslatef(10, 0, 0);
+    drawRiver();
+    glTranslatef(10, 0, 0);
+    drawRiver();
+    glTranslatef(10, 0, 0);
+    drawRiver();
+    glPopMatrix();
     // ------------------------------------------ Draw Tree   --Working with ballon 
     //glPushMatrix();
     glPushMatrix();
     trees();
     glPopMatrix();
-    glTranslatef(2, 0, 0);
-    trees();
+    //glTranslatef(2, 0, 0);
+    //trees();
     glTranslatef(2, 0, 0);
     trees();
     glTranslatef(0, 0, 2);
     trees();
+    glTranslatef(0, -2, 0);
+    trees();
+    glTranslatef(0, 2, 2);
+    trees();
+    glTranslatef(0, -2, 0);
+    trees();
+    glTranslatef(0, 2, 2);
+    trees();
+    glTranslatef(0, -2, 0);
+    trees();
+    glTranslatef(0, 2, 2);
+    trees();
+    glTranslatef(0, 0, 8);
+    trees();
+    glTranslatef(0, 0, 2);
+    trees();
+    glTranslatef(0, 0, 2);
+    trees();
+    //glTranslatef(0, 0, 2);
+    //trees();
 
     //moreTrees();
     //------------------------------------------------Draw Pond------ working with ballon
     glPushMatrix();
-    glTranslated(-12, 0, -10);
+    glTranslated(-15, 0, -10);
     glRotatef(90, 1.0, 0.0, 0.0);
     drawPond(-10, -10, 8, 64);
     glPopMatrix();
     glPushMatrix();
-    glTranslated(-22,0.1,-20);
+    glTranslated(-25,0.1,-20);
     glRotatef(90, 1.0, 0.0, 0.0);
     drawDisk(8, 32);
     glPopMatrix();
-    //-----------------------------------------Draw river ------------testing now
-    //drawHelixspring(4, 0.4, 0.05);
+    //--------------------------------------two store house------------
+    //glPushMatrix();
+    //glScalef(0, 1, 0);
+    //buildingFloor();
+    //drawHouse();
+    //housepills();
+    //glPushMatrix();
+    //glTranslatef(0, 0, 0);
+    //groundHouse();
+    //glPopMatrix();
     //---------------------------------------Draw Buildings  -- gound house  --working  with ballon
     //glPushMatrix();
     //glTranslatef(8, 0, 0);
     groundHouse();
     glTranslatef(10, 0, 0);
     groundHouse();
-    glTranslatef(0,0,15);
+    glTranslatef(0, 0, -15);
     groundHouse();
-
+    glTranslatef(30, 0, 0);
+    groundHouse();
+    glTranslatef(-30, 0, -15);
+    groundHouse();
+    glTranslatef(-40, 0, 0);
+    groundHouse();
+    glTranslatef(40,0,30);
+    groundHouse();
+    glTranslatef(0, 0, 15);
+    groundHouse();
+    //groundHouse();
+    glTranslatef(10, 0, 0);
+    groundHouse();
+    glTranslatef(-80, 0, 0);
+    groundHouse();
+    glTranslatef(0, 0, 30);
+    groundHouse();
     //glPopMatrix();
 
     //-------------------------------------- -- twostorehouse  ---not working  with ballon
-    //glTranslatef(0, 4, 0);
+    //glPushMatrix();
+    //glTranslatef(0, -24, 0);
     //twostorehouse();
+    //glPopMatrix();
     //-----------------------------------------  --- Draw the ballon---------
     glPushMatrix();
    // glTranslatef(animationFactor / 100, 0, 0);
@@ -1045,11 +1244,12 @@ int main(void) {
     glutSpecialFunc(keyboardSpecial);
     loadTexture1();
     loadTexture3();
+    loadTexture4();
+    loadTexture5();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutTimerFunc(15,animate,1);
     init();
-
     glutMainLoop();
     return 0;
 }
