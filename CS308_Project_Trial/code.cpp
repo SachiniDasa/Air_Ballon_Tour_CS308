@@ -823,14 +823,14 @@ void drawPond(float centerX, float centerY, float radius, int numStones) {
 
 //add river---------------------------------------ok
 void drawRiver() {
-        // Define points along the path of the river
+        
     float riverPoints[numPoints][3];
 
-        // Define the river points using a loop
+        // river points as sin wave drawn iny axis
    for (int i = 0; i < numPoints; ++i) {
-            float t = (float)i / (numPoints - 1); // Parameter for interpolation (0 to 1)
-            float x = -10.0f + t * 20.0f; // Interpolate x-coordinate along the river
-            float y = 2.0f * sin(2.0f * pi * t); // Sine wave for y-coordinate
+            float t = (float)i / (numPoints - 1); 
+            float x = -10.0f + t * 20.0f; // 
+            float y = 2.0f * sin(2.0f * pi * t); 
             riverPoints[i][0] = x+1;
             riverPoints[i][1] = y;
             riverPoints[i][2] = 0.0f;
